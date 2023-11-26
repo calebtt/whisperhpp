@@ -1,6 +1,8 @@
 #ifndef WHISPER_H
 #define WHISPER_H
 
+#include <functional>
+
 #include "ggml.h"
 
 #include <stddef.h>
@@ -29,10 +31,14 @@
 #    define WHISPER_API
 #endif
 
-#define WHISPER_SAMPLE_RATE 16000
-#define WHISPER_N_FFT       400
-#define WHISPER_HOP_LENGTH  160
-#define WHISPER_CHUNK_SIZE  30
+static constexpr uint32_t WHISPER_SAMPLE_RATE{ 16'000 };
+//#define WHISPER_SAMPLE_RATE 16000
+static constexpr uint32_t WHISPER_N_FFT{ 400 };
+//#define WHISPER_N_FFT       400
+static constexpr uint32_t WHISPER_HOP_LENGTH{160};
+//#define WHISPER_HOP_LENGTH  160
+static constexpr uint32_t WHISPER_CHUNK_SIZE{ 30 };
+//#define WHISPER_CHUNK_SIZE  30
 
 #ifdef __cplusplus
 extern "C" {
@@ -401,31 +407,25 @@ extern "C" {
     // Text segment callback
     // Called on every newly generated text segment
     // Use the whisper_full_...() functions to obtain the text segments
-    typedef void (*whisper_new_segment_callback)(struct whisper_context * ctx, struct whisper_state * state, int n_new, void * user_data);
+    using whisper_new_segment_callback = std::function<void(whisper_context* ctx, whisper_state* state, int n_new, void* user_data)>;
 
     // Progress callback
-    typedef void (*whisper_progress_callback)(struct whisper_context * ctx, struct whisper_state * state, int progress, void * user_data);
+    using whisper_progress_callback = std::function<void(whisper_context* ctx, whisper_state* state, int progress, void* user_data)>;
 
     // Encoder begin callback
     // If not NULL, called before the encoder starts
     // If it returns false, the computation is aborted
-    typedef bool (*whisper_encoder_begin_callback)(struct whisper_context * ctx, struct whisper_state * state, void * user_data);
+    using whisper_encoder_begin_callback = std::function<bool(whisper_context* ctx, whisper_state* state, void* user_data)>;
 
     // Abort callback
     // If not NULL, called before ggml computation
     // If it returns true, the computation is aborted
-    typedef bool (*whisper_abort_callback)(void * user_data);
+    typedef bool (*whisper_abort_callback)(void* user_data);
 
     // Logits filter callback
     // Can be used to modify the logits before sampling
     // If not NULL, called after applying temperature to logits
-    typedef void (*whisper_logits_filter_callback)(
-            struct whisper_context * ctx,
-              struct whisper_state * state,
-          const whisper_token_data * tokens,
-                               int   n_tokens,
-                             float * logits,
-                              void * user_data);
+    using whisper_logits_filter_callback = std::function<void(whisper_context* ctx, whisper_state* state, whisper_token_data* tokens, int n_tokens, float* logits, void* user_data)>;
 
     // Parameters for the whisper_full() function
     // If you change the order or add new parameters, make sure to update the default values in whisper.cpp:

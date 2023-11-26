@@ -4539,7 +4539,7 @@ static void whisper_process_logits(
     const struct whisper_full_params   params,
                                float   temperature) {
     const auto & vocab      = ctx.vocab;
-    const auto & tokens_cur = decoder.sequence.tokens;
+    auto & tokens_cur = decoder.sequence.tokens;
 
     const bool is_initial = tokens_cur.size() == 0;
     const int  n_logits   = vocab.id_to_token.size();
